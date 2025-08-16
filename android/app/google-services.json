@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "481178445399",
+    "project_id": "el-patool-c5476",
+    "storage_bucket": "el-patool-c5476.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:481178445399:android:ddc87f0713228a9f5ce512",
+        "android_client_info": {
+          "package_name": "com.example.el_patol"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNxvuR0IJfGttLPBYsqkkB8CZhfmSLFg8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
