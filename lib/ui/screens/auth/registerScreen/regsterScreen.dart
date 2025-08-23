@@ -1,11 +1,11 @@
 import 'dart:ui';
 import 'package:el_patol/ui/screens/utilites/appAssets.dart';
+import 'package:el_patol/ui_web/consts_web.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../../models_web/model_student.dart';
-import '../../../../services/governorateserveces.dart';
 import '../loginScreen/loginScreen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -23,6 +23,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _codeController = TextEditingController();
+
+  // ✅ الحقول الإضافية
+  final _phoneParentController = TextEditingController();
+  final _phoneStudentController = TextEditingController();
+  final _locationController = TextEditingController();
 
   bool isLoading = false;
 
@@ -55,6 +60,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return snapshot.exists;
   }
 
+  String getStageName(String stageCode) {
+    switch (stageCode) {
+      case "P_1":
+        return "أولى إعدادي";
+      case "P_2":
+        return "تانية إعدادي";
+      case "P_3":
+        return "تالتة إعدادي";
+      default:
+        return "غير معروف";
+    }
+  }
+
   Future<void> registerUser() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => isLoading = true);
@@ -68,10 +86,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .showSnackBar(SnackBar(content: Text("❌ الكود غير صحيح")));
       return;
     }
+    final stageName = getStageName(stageCode);
 
     try {
       UserCredential userCredential =
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -81,7 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final student = Student(
         id: userId,
         name: "${_firstNameController.text} ${_lastNameController.text}",
-        stage: stageCode,
+        stage: stageName,
         paidModules: {},
         watchedVideos: {},
         assignments: {},
@@ -94,7 +113,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         role: 'student',
         isRegistered: true,
         createdAt: DateTime.now(),
+        // ✅ القيم المضافة من اليوزر
         teachers: {},
+        phoneParent: _phoneParentController.text,
+        phoneStudent: _phoneStudentController.text,
+        location: _locationController.text,
       );
 
       await addUserToFirestore(
@@ -112,6 +135,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } finally {
       setState(() => isLoading = false);
     }
+    await ConstsWeb.setStudentData(
+      key: "name",
+      value: "${_firstNameController.text} ${_lastNameController.text}",
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "centerCode",
+      value: centerCode,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "stageCode",
+      value: stageCode,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "phoneParent",
+      value: _phoneParentController.text,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "phoneStudent",
+      value: _phoneStudentController.text,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "codeStudent",
+      value: code,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "location",
+      value: _locationController.text,
+    );
+
+    await ConstsWeb.setStudentData(
+      key: "stageName",
+      value: stageName,
+    );
+
   }
 
   Future<void> addUserToFirestore({
@@ -137,125 +200,174 @@ class _RegisterScreenState extends State<RegisterScreen> {
         width: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage(AppAssets.main1), // 🔹 حط صورة مناسبة
+            image: AssetImage(AppAssets.main1),
             fit: BoxFit.cover,
           ),
         ),
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: Container(
-                    width: 500,
-                    padding: const EdgeInsets.all(32),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 30,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  width: 500,
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1.5,
                     ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.school_rounded,
-                              size: 80, color: Colors.blue.shade200),
-                          const SizedBox(height: 16),
-                          Text(
-                            "إنشاء حساب جديد",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              letterSpacing: 1.2,
-                            ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        blurRadius: 30,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.school_rounded,
+                            size: 80, color: Colors.blue.shade200),
+                        const SizedBox(height: 16),
+                        Text(
+                          "إنشاء حساب جديد",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.2,
                           ),
-                          const SizedBox(height: 30),
+                        ),
+                        const SizedBox(height: 30),
 
-                          _buildTextField(_firstNameController, "الاسم الأول",
-                              Icons.person_outline),
-                          const SizedBox(height: 16),
-                          _buildTextField(_lastNameController, "اسم العائلة",
-                              Icons.person_outline),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                              _emailController, "البريد الإلكتروني", Icons.email),
-                          const SizedBox(height: 16),
-                          _buildTextField(_passwordController, "كلمة المرور",
-                              Icons.lock_outline,
-                              isPassword: true),
-                          const SizedBox(height: 16),
-                          _buildTextField(
-                              _codeController, "كود المستخدم", Icons.code),
-                          const SizedBox(height: 30),
+                        // ✅ الاسم الأول + العائلة جنب بعض
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildTextField(_firstNameController,
+                                  "الاسم الأول", Icons.person_outline),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 3,
+                              child: _buildTextField(_lastNameController,
+                                  "اسم العائلة", Icons.person_outline),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
 
-                          SizedBox(
-                            width: double.infinity,
-                            child: InkWell(
-                              onTap: isLoading ? null : registerUser,
-                              borderRadius: BorderRadius.circular(12),
-                              child: AnimatedContainer(
-                                duration: const Duration(seconds: 2),
-                                curve: Curves.linear,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.blue.shade900,
-                                      Colors.blue.shade600,
-                                      Colors.purple.shade600,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blue.withOpacity(0.4),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 6),
-                                    ),
+                        // ✅ الإيميل (صف لوحده)
+                        _buildTextField(
+                            _emailController, "البريد الإلكتروني", Icons.email),
+                        const SizedBox(height: 16),
+
+                        // ✅ الباسورد + الكود جنب بعض
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildTextField(_passwordController,
+                                  "كلمة المرور", Icons.lock_outline,
+                                  isPassword: true),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: _buildTextField(
+                                  _codeController, "كود المستخدم", Icons.code),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // ✅ تليفون ولي الأمر + الطالب جنب بعض
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: _buildTextField(_phoneParentController,
+                                  "تليفون ولي الأمر", Icons.phone),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: _buildTextField(_phoneStudentController,
+                                  "تليفون الطالب", Icons.phone_android),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // ✅ العنوان صف كامل
+                        _buildTextField(_locationController, "المكان / العنوان",
+                            Icons.location_on),
+                        const SizedBox(height: 30),
+
+                        // ✅ زر التسجيل
+                        SizedBox(
+                          width: double.infinity,
+                          child: InkWell(
+                            onTap: isLoading ? null : registerUser,
+                            borderRadius: BorderRadius.circular(12),
+                            child: AnimatedContainer(
+                              duration: const Duration(seconds: 2),
+                              curve: Curves.linear,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.blue.shade900,
+                                    Colors.blue.shade600,
+                                    Colors.purple.shade600,
                                   ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                child: Center(
-                                  child: isLoading
-                                      ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    ),
-                                  )
-                                      : const Text(
-                                    "تسجيل",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                      color: Colors.white,
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.blue.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
                                   ),
-                                ),
+                                ],
+                              ),
+                              child: Center(
+                                child: isLoading
+                                    ? const SizedBox(
+                                        height: 22,
+                                        width: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
+                                        ),
+                                      )
+                                    : const Text(
+                                        "تسجيل",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1.2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
-
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -263,12 +375,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
-
+      ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label,
-      IconData icon,
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
       {bool isPassword = false}) {
     return TextFormField(
       controller: controller,

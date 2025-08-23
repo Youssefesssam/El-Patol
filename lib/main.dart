@@ -1,50 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:el_patol/providers/leader_provider.dart';
-import 'package:el_patol/screens/add_sub_leader_screen.dart';
-import 'package:el_patol/screens/add_user_screen.dart';
-import 'package:el_patol/screens/authLeader/ragsterDataForLeader.dart';
-import 'package:el_patol/screens/loginScreenMasterLeader.dart';
-import 'package:el_patol/screens/login_sub_leader.dart';
-import 'package:el_patol/screens/master_leader_screen.dart';
-import 'package:el_patol/screens/myInfo.dart';
-import 'package:el_patol/screens/screen_profile_leader.dart';
-import 'package:el_patol/screens/users_codes.dart';
-import 'package:el_patol/ui/screens/auth/loginScreen/LoginPage.dart';
+
 import 'package:el_patol/ui/screens/auth/loginScreen/loginScreen.dart';
-import 'package:el_patol/ui/screens/auth/registerScreen/RegisterPage.dart';
+
 import 'package:el_patol/ui/screens/auth/registerScreen/regsterScreen.dart';
 import 'package:el_patol/ui/screens/developerScreens/add_center.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/bodyScreenLaders/attend/attend.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/absent/absentData.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/answers.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/home.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/team.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/listOfUsers/listOfUsers.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/Contents/shimaa/animatedProfile.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/appBarUser/setting/setting.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/bottomAppBarUsers/rank/rank.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/bottomAppBarUsers/statistcsViewModel.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/bottomAppBarUsers/statistics.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/chartsDigram/charts.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/slider/event/event.dart';
-import 'package:el_patol/ui/screens/features/featuresHomeScreenUsers/bodyScreenUsers/slider/task/task.dart';
-import 'package:el_patol/ui/screens/homeScreen/homeScreenLeaders.dart';
-import 'package:el_patol/ui/screens/homeScreen/profile.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/changePassword.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/componentScreenUser/ad.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/homeScreenShimmer.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/homeScreenUsers.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/mainComponent/compitionWidget/compettion/prize/DailyCheckInScreen.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/mainComponent/compitionWidget/compettion/prize/prizeScreen.dart';
-import 'package:el_patol/ui/screens/homeScreen/screenUser/mainComponent/generalWidget/general/emoji.dart';
-import 'package:el_patol/ui/screens/homeScreen/setttingUser.dart';
-import 'package:el_patol/ui/screens/splashScreen/splashScreen.dart';
-import 'package:el_patol/ui/screens/splashScreen/welcomeScreen.dart';
+
 import 'package:el_patol/ui_web/add_video/chooseStage.dart';
-import 'package:el_patol/ui_web/add_video/createModuleScreen.dart';
-import 'package:el_patol/ui_web/add_video/modulesListScreen.dart';
+
 import 'package:el_patol/ui_web/homeWeb/homeWeb.dart';
 import 'package:el_patol/ui_web/screenMr/screenMr.dart';
+import 'package:el_patol/ui_web/screens/add_sub_leader_screen.dart';
+import 'package:el_patol/ui_web/screens/add_user_screen.dart';
+import 'package:el_patol/ui_web/screens/authLeader/ragsterDataForLeader.dart';
+import 'package:el_patol/ui_web/screens/loginScreenMasterLeader.dart';
+import 'package:el_patol/ui_web/screens/login_sub_leader.dart';
+import 'package:el_patol/ui_web/screens/master_leader_screen.dart';
 import 'package:el_patol/ui_web/seenVideoUser/seenvideo.dart';
 import 'package:el_patol/ui_web/studend_ui/TeachersPage.dart';
 import 'package:el_patol/ui_web/studend_ui/studentProfilePage.dart';
@@ -52,11 +23,7 @@ import 'package:el_patol/ui_web/subscriptionRequestsScreen/subscriptionRequestsS
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'firebase/authProvider.dart';
-import 'firebase/dataProvider.dart';
-import 'firebase/fireBase/fireBaseForLeader/secend firebase.dart';
 import 'firebase/langProvider.dart';
-import 'firebase/monthProvider.dart';
-import 'firebase/providerTotalScore.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -75,7 +42,7 @@ void main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 
-  await SecondFirebase.initialize();
+  // await SecondFirebase.initialize();
 
   final langProvider = LangProvider();
   await langProvider.loadLocale();
@@ -84,27 +51,22 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProviders()),
-        ChangeNotifierProvider(create: (_) => DataProvider()),
-        ChangeNotifierProvider(create: (_) => StatisticsViewModel()),
-        ChangeNotifierProvider(create: (_) => ProviderTotalScore()),
         ChangeNotifierProvider(create: (_) => LeaderProvider()),
-        ChangeNotifierProvider(create: (_) => MonthProvider()),
-
         ChangeNotifierProvider(create: (_) => langProvider),
       ],
       child: MyApp(),
     ),
   );
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    LangProvider langProvider=Provider.of(context);
+    LangProvider langProvider = Provider.of(context);
     return MaterialApp(
-
-      locale:langProvider.currentLocale,
+      locale: langProvider.currentLocale,
       supportedLocales: L10n.all,
 
       localizationsDelegates: [
@@ -114,58 +76,29 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-
-      initialRoute:HomeWeb.routeName,
+      initialRoute: HomeWeb.routeName,
       // This trailing comma makes auto-formatting nicer for build methods.
       debugShowCheckedModeBanner: false,
       routes: {
-        HomeScreenLeaders.routeName: (_) => const HomeScreenLeaders(),
-        HomeScreenUsers.routeName: (_) => HomeScreenUsers(),
-        HomeScreenShimmer.routeName: (_) => HomeScreenShimmer(),
-        SplashScreen.routeName: (_) => const SplashScreen(),
-        Charts.routeName: (_) => Charts(),
-        Setting.routeName: (_) =>  Setting(),
-        SettingUser.routeName: (_) => const SettingUser(),
-        EventScreen.routeName: (_) => const EventScreen(),
-        MyEmoji.routeName: (_) =>  MyEmoji(),
-        TaskScreen.routeName: (_) => const TaskScreen(),
-        ListOfUsers.routeName: (_) => ListOfUsers(),
-        Statistics.routeName: (_) =>  Statistics(),
-        Home.routeName: (_) =>  Home(),
-        RankPage.routeName: (_) => const RankPage(),
-        UserProfilePage.routeName: (_) => const UserProfilePage(),
-        Attend.routeName: (_) => Attend(),
-        Answers.routeName: (_) => const Answers(),
-        AbsentData.routeName: (_) => const AbsentData(),
-        Team.routeName: (_) => const Team(),
-        AnimatedProfile.routeName: (_) => AnimatedProfile(),
-        ProfileScreen.routeName: (_) => ProfileScreen(),
-        MyInfo.routeName: (_) => MyInfo( ),
-        AdInterFace.routeName: (_) => AdInterFace( ),
-        PrizeScreen.routeName: (_) => PrizeScreen( ),
-        DailyCheckInDialog.routeName: (_) => DailyCheckInDialog( ),
-        ChangePasswordPage.routeName: (_) => ChangePasswordPage( ),
-        AllUsersCodesScreen.routeName: (_) => AllUsersCodesScreen( ),
-        WelcomeScreen.routeName: (_) => WelcomeScreen( ),
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        MasterLeaderScreen.routeName: (_) => MasterLeaderScreen( ),
-        RagsterDataForLeader.routeName: (_) => RagsterDataForLeader( ),
-        LoginSubLeaderScreen.routeName: (_) => LoginSubLeaderScreen( ),
+        HomeWeb.routeName: (_) => HomeWeb(),
+        MasterLeaderScreen.routeName: (_) => MasterLeaderScreen(),
+        RagsterDataForLeader.routeName: (_) => RagsterDataForLeader(),
+        LoginSubLeaderScreen.routeName: (_) => LoginSubLeaderScreen(),
         AddSubLeaderScreen.routeName: (_) => AddSubLeaderScreen(),
         LoginScreenMasterLeader.routeName: (_) => LoginScreenMasterLeader(),
         LoginScreen.routeName: (_) => const LoginScreen(),
-        RegisterScreen.routeName: (_) =>  RegisterScreen(),
-        StudentProfilePage.routeName: (_) => StudentProfilePage( ),
-        TeachersPage.routeName: (_) => TeachersPage(centerCode: '101', studentCode: 'SP11011960', stageCode: 'P_1', ),
-        HomeWeb.routeName: (_) => HomeWeb( ),
-        LoginPage.routeName: (_) =>  LoginPage(),
-        RegisterPage.routeName: (_) =>  RegisterPage(),
-        SeenVideoUser.routeName: (_) =>  SeenVideoUser(),
-        AddCenter.routeName: (_) => AddCenter( ),
-        ChooseStageScreen.routeName: (_) => ChooseStageScreen( ),
-        ScreenMr.routeName: (_) => ScreenMr( ),
-        SubscriptionRequestsScreen.routeName: (_) => SubscriptionRequestsScreen(teacherId: 'Mr1017595', centerId: '101', ),
-
+        AddUserScreen.routeName: (_) => const AddUserScreen(),
+        RegisterScreen.routeName: (_) => RegisterScreen(),
+        StudentProfilePage.routeName: (_) => StudentProfilePage(),
+        TeachersPage.routeName: (_) => TeachersPage(),
+        SeenVideoUser.routeName: (_) => SeenVideoUser(),
+        AddCenter.routeName: (_) => AddCenter(),
+        ChooseStageScreen.routeName: (_) => ChooseStageScreen(),
+        ScreenMr.routeName: (_) => ScreenMr(),
+        SubscriptionRequestsScreen.routeName: (_) => SubscriptionRequestsScreen(
+              teacherId: 'Mr1017595',
+              centerId: '101',
+            ),
       },
     );
   }

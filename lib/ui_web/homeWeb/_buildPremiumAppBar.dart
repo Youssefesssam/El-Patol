@@ -3,8 +3,35 @@ import 'package:el_patol/ui/screens/auth/loginScreen/loginScreen.dart';
 import 'package:el_patol/ui/screens/utilites/appAssets.dart';
 import 'package:flutter/material.dart';
 
-class BuildPremiumAppBar extends StatelessWidget {
+import '../consts_web.dart';
+import '../studend_ui/studentProfilePage.dart';
+
+class BuildPremiumAppBar extends StatefulWidget {
   const BuildPremiumAppBar({super.key});
+
+  @override
+  State<BuildPremiumAppBar> createState() => _BuildPremiumAppBarState();
+}
+
+class _BuildPremiumAppBarState extends State<BuildPremiumAppBar> {
+  bool isLogin=false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLogin(); // ⭐ إضافة هذا السطر
+  }
+
+  Future<void> checkLogin() async {
+    String? checkEmail = await ConstsWeb.getStudentData(key: ConstsWeb.email);
+    print("Email : $checkEmail");
+    if (checkEmail != null && checkEmail.isNotEmpty) {
+      setState(() {
+        isLogin = true;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -186,9 +213,15 @@ class BuildPremiumAppBar extends StatelessWidget {
   // زر الإجراء مع أحجام متجاوبة
   Widget _buildActionButton(double horizontalPadding, double verticalPadding, double fontSize,BuildContext context) {
     return InkWell(
-      onTap: (){
+      onTap: () async {
+      if (isLogin) {
+        // مسجل قبل كده → يدخل مباشرة
+        Navigator.pushNamed(context, StudentProfilePage.routeName);
+      } else {
+        // مش مسجل → يروح للوجين
         Navigator.pushNamed(context, LoginScreen.routeName);
-      },
+      }
+    },
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: horizontalPadding,

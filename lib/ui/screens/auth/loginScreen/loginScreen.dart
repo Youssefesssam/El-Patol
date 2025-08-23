@@ -1,21 +1,10 @@
 import 'dart:ui';
-
 import 'package:el_patol/ui/screens/utilites/appAssets.dart';
+import 'package:el_patol/ui_web/consts_web.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../../../firebase/authProvider.dart';
-import '../../../../firebase/dataProvider.dart';
-import '../../../../firebase/fireBase/fireBaseForUser/New_fire_base_set_data_for_user.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../model/modelUser.dart';
-import '../../../../services/churchService.dart';
-import '../../../../services/governorateserveces.dart';
 import '../../../../ui_web/studend_ui/studentProfilePage.dart';
-import '../../utilites/appColors.dart';
-import '../registerScreen/RegisterPage.dart';
 import '../registerScreen/regsterScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -35,11 +24,14 @@ class _LoginScreenState extends State<LoginScreen> {
   String? stageType, stageYear, stageCode, church;
   bool _isLoading = false;
 
+  bool rememberMe = true; // ⭐ إضافة متغير "تذكرني"
+
   void signIn(BuildContext context) async {
     if (_isLoading) return;
     setState(() {
       _isLoading = true;
     });
+
 
     try {
       if (codeController.text.isNotEmpty &&
@@ -61,28 +53,26 @@ class _LoginScreenState extends State<LoginScreen> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-
       User? firebaseUser = credential.user;
-
+      print("Emaaaiiilll : ${emailController.text}");
+      print("passss : ${passwordController.text}");
+      if (rememberMe) {
+        ConstsWeb.setStudentData(
+            value: emailController.text,
+            key: ConstsWeb.email
+        );
+        ConstsWeb.setStudentData(
+            value: passwordController.text,
+            key: ConstsWeb.password
+        );
+      }
       if (firebaseUser != null) {
-        String userId = firebaseUser.uid;
         String? email = firebaseUser.email;
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userId);
-        await prefs.setString('email', email ?? "");
-        await prefs.setString('centerCode', centerCode ?? '');
-        await prefs.setString('stageType', stageType ?? '');
-        await prefs.setString('stageYear', stageYear ?? '');
-        await prefs.setString('stageCode', stageCode ?? '');
-
+        ConstsWeb.setStudentData(value:emailController.text, key: ConstsWeb.email);
+        ConstsWeb.setStudentData(value:passwordController.text, key: ConstsWeb.password);
+        String? email1=await ConstsWeb.getStudentData(key: "email");
+        print("Email login : $email1");
         if (mounted) {
-          final dataProvider = Provider.of<DataProvider>(context, listen: false);
-          dataProvider.uid = userId;
-
-          final authProvider = AuthProviders();
-          await authProvider.setUserData();
-
           Navigator.pushReplacementNamed(context, StudentProfilePage.routeName);
         }
       }
@@ -236,7 +226,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               return null;
                             },
                           ),
-
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                rememberMe = value ?? true;
+                              });
+                            },
+                            activeColor: Colors.blueAccent,
+                            checkColor: Colors.white,
+                          ),
+                          Text(
+                            'تذكر بياناتي',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],),
                           const SizedBox(height: 40),
                           SizedBox(
                             width: double.infinity,

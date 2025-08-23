@@ -49,7 +49,7 @@ class _TeacherModulesScreenState extends State<TeacherModulesScreen> {
             .collection('Mr')
             .doc(widget.teacherId)
             .collection('modules')
-            .doc(widget.student.stage)
+            .doc(widget.student.stageCode)
             .collection('module')
             .snapshots(),
         builder: (context, snapshot) {
@@ -65,7 +65,7 @@ class _TeacherModulesScreenState extends State<TeacherModulesScreen> {
               ),
             );
           }
-
+          print("🔥 READ module");
           final docs = snapshot.data!.docs;
 
           return GridView.builder(
@@ -272,6 +272,8 @@ class _TeacherModulesScreenState extends State<TeacherModulesScreen> {
 
   Future<void> requestSubscription(String teacherId, String moduleId,
       Student student, String title, int price) async {
+    print("🔥 READ requestSubscription");
+
     await FirebaseFirestore.instance
         .collection('center')
         .doc(student.centerCode)
@@ -294,6 +296,8 @@ class _TeacherModulesScreenState extends State<TeacherModulesScreen> {
   }
 
   Future<void> _subscribeToModule(String moduleId) async {
+    print("🔥 READ _subscribeToModule");
+
     await FirebaseFirestore.instance
         .collection('center')
         .doc(widget.student.centerCode)

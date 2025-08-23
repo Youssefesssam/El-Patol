@@ -1,48 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
-
-
-import '../model/modelUser.dart';
-import '../model/modelUserAttend.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../services/churchService.dart';
 import '../ui/screens/utilites/consts.dart';
-import 'fireBase/fireBaseForLeader/New_fire_base_get_data_for_leader.dart';
-import 'fireBase/fireBaseForLeader/New_fire_base_set_data_for_leader.dart';
-import 'fireBase/fireBaseForLeader/fireBaseSetDataForLeader.dart';
-
 class AuthProviders extends ChangeNotifier {
-  MyUser? currentUser;
-  int? week;
-  int? weekUse;
-  String? currentMonth;
-  List<MyUser> users = [];
-  List<User> usersAttend = [];
-  List<int> absentWeek = [];
-  List<Map<String, dynamic>> absentUsers = []; // تخزين الاسم + عدد مرات الغياب
-  bool get isUserLoggedIn => currentUser != null;
 
-  String? _sweetId;
-  String? _wordId;
-  String? _hiEventId;
 
   //current user data
   String? _userId;
   String? _profileURl;
   String? _name;
-  String? _address;
-  String? _talent;
+
   String? _phone;
   String? _email;
   String? _code;
   String? _codeUs;
-  String? _university;
-  String? _gender;
-  String? _facebook;
-  String? _whatsapp;
+
 
   String? _codeMaster;
   String? _churchCodeMaster;
@@ -74,12 +47,9 @@ class AuthProviders extends ChangeNotifier {
   String? _governorateCode;
 
   /////////////////////////////////
-  int _countUserAttend =0;
-  int _countUserUnAttend =0;
+
   //////////
 
-  int get countUserAttend => _countUserAttend;
-  int get countUserUnAttend => _countUserUnAttend;
 
 
   String? get codeMaster => _codeMaster;
@@ -104,17 +74,12 @@ class AuthProviders extends ChangeNotifier {
 
   String? get name => _name;
 
-  String? get facebook => _facebook;
 
-  String? get whatsapp => _whatsapp;
 
   String? get code => _code;
 
   String? get codeUs => _codeUs;
 
-  String? get talent => _talent;
-
-  String? get gender => _gender;
 
   String? get ageUser => _ageUser;
 
@@ -122,21 +87,13 @@ class AuthProviders extends ChangeNotifier {
 
   String? get stageYearUser => _stageYearUser;
 
-  String? get address => _address;
 
-  String? get university => _university;
 
   String? get phone => _phone;
 
   String? get email => _email;
 
-  int? get currentWeek => week;
 
-  String? get sweetId => _sweetId;
-
-  String? get wordId => _wordId;
-
-  String? get hiEventId => _hiEventId;
 
   String? get nameL => _nameLeader;
 
@@ -164,27 +121,8 @@ class AuthProviders extends ChangeNotifier {
 
   String? get roleL => _roleLeader;
 
-  Future<void> countUserAttendFun(int attend) async {
-    final prefs = await SharedPreferences.getInstance();
 
-    if (attend == 0) {
-      _countUserAttend = 0;
-    } else {
-      _countUserAttend += attend;
-    }
 
-    // احفظ القيمة
-    await prefs.setInt('user_attend_count', _countUserAttend);
-
-    notifyListeners();
-  }
-
-  // 🆕 أضف هذه الدالة لتحميل الرقم عند بداية التطبيق
-  Future<void> loadUserAttendCountFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    _countUserAttend = prefs.getInt('user_attend_count') ?? 0;
-    notifyListeners();
-  }
 
   void setCodeLeader(String codeLeader) {
     _codeLeader = codeLeader;
@@ -197,240 +135,18 @@ class AuthProviders extends ChangeNotifier {
   }
 
   //28
-  void setWeek(int numweek) {
-    print('===============================');
-    print('numWeek ===============================$numweek');
-    print('🧭 StackTrace:\n${StackTrace.current}');
-    print('===============================');
-    weekUse = numweek;
-    week = (numweek - 1) % 4 + 1;
-    notifyListeners();
-    print('week in auth ===============================$week');
-    print('weekUse in auth ===============================$weekUse');
-  }
 
-  void setCurrentMonth(int weekfun) {
-    print('===============================');
-    print('🧭 StackTrace:\n${StackTrace.current}');
-    print('===============================');
 
-    print(
-      '+++++++++++++ week to cnvert to month in auth: $weekfun -------------',
-    );
-    int month = (weekfun - 1) ~/ 4 + 1;
-    currentMonth = month.toString().padLeft(2, '0');
-    notifyListeners();
-    print('+++++++++++++month now in auth: $currentMonth -------------');
-  }
 
-  void setSweetId(String sweetId) {
-    _sweetId = sweetId;
-    notifyListeners();
-  }
 
-  void setwordId(String wordId) {
-    _wordId = wordId;
-    notifyListeners();
-  }
-
-  void sethiEventId(String hiEventId) {
-    _hiEventId = hiEventId;
-    notifyListeners();
-  }
 
   SharedPreferences? sharedPreferences;
 
-  void changeUser({
-    required MyUser newUser,
-    required String governorate,
-    required String church,
-    required String stage,
-  }) {
-    if (newUser.id.isEmpty) {
-      print("Error: newUser ID is empty");
-      return;
-    }
-    currentUser = newUser;
-    print("Changed current user to: ${currentUser?.name}");
-    readUsersToLeaders(governorate: governorate, church: church, stage: stage);
-    notifyListeners();
-  }
 
-  void readUsersToLeaders({
-    required String governorate,
-    required String church,
-    required String stage,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> result =
-      await New_fire_base_get_data_for_leader.getAllUsersFromNestedStructure(
-        governorateName: governorate,
-        churchCode: church,
-        stageCode: stage,
-      );
 
-      print('Result from Firebase: $result'); // <-- خطوة مهمة
 
-      if (result.isEmpty) {
-        print('No data found in the specified path');
-      }
 
-      List<MyUser> fetchedUsers = result
-          .map((data) => MyUser.fromJson(data))
-          .toList();
 
-      users = fetchedUsers; // تأكد إنها _users وليس users
-      notifyListeners();
-    } catch (e) {
-      print("Error reading users: $e");
-    }
-  }
-  Future<void> readUsersToLeadersForList({
-    required String governorate,
-    required String church,
-    required String stage,
-  }) async {
-    try {
-      final List<Map<String, dynamic>> result =
-      await New_fire_base_get_data_for_leader.getAllUsersFromNestedStructure(
-        governorateName: governorate,
-        churchCode: church,
-        stageCode: stage,
-      );
-
-      print('Result from Firebase: $result'); // <-- خطوة مهمة
-
-      if (result.isEmpty) {
-        print('No data found in the specified path');
-      }
-
-      List<MyUser> fetchedUsers = result
-          .map((data) => MyUser.fromJson(data))
-          .toList();
-
-      users = fetchedUsers; // تأكد إنها _users وليس users
-      notifyListeners();
-    } catch (e) {
-      print("Error reading users: $e");
-    }
-  }
-
-  void readUsersAttendToLeaders({
-    required int numWeek,
-    required BuildContext context,
-  }) {
-    AuthProviders authProviders = Provider.of<AuthProviders>(
-      context,
-      listen: false,
-    );
-    try {
-      // مسح بيانات الأسبوع السابق
-      usersAttend.clear();
-
-      CollectionReference<User> attendCollection =
-      New_fire_base_set_data_for_leader.getAttend(
-        numWeek: numWeek,
-        governorate: authProviders.governorate!,
-        church: authProviders.churchCodeL!,
-        stage: authProviders.stageCode!,
-      );
-
-      attendCollection.snapshots().listen(
-            (querySnapshot) {
-          usersAttend = querySnapshot.docs.map((doc) => doc.data()).toList();
-          notifyListeners(); // تحديث الواجهة عند وصول بيانات جديدة
-        },
-        onError: (e) {
-          print("Error reading attendance: $e");
-        },
-      );
-    } catch (e) {
-      print("Error setting up listener: $e");
-    }
-  }
-
-  void calculateAbsentUsers(int currentWeek) async {
-    try {
-      Map<String, int> absenceCount = {};
-
-      for (var user in users) {
-        // إذا لم يكن هناك lackWeek، نعتبر أن المستخدم لم يفتقد من قبل
-        if (user.lackWeek == null) continue;
-
-        // نبدأ الحساب من الأسبوع التالي لآخر افتقاد
-        int startWeek = user.lackWeek! + 1;
-
-        // نتأكد أن startWeek ليس أكبر من currentWeek
-        if (startWeek > currentWeek) continue;
-
-        // عدد الأسابيع المطلوب حسابها
-        int weeksToCalculate = currentWeek - startWeek + 1;
-
-        // إذا لم يكن هناك أسابيع للحساب
-        if (weeksToCalculate <= 0) continue;
-
-        absenceCount[user.id] = 0; // نبدأ العد من الصفر لهذا المستخدم
-
-        for (int week = startWeek; week <= currentWeek; week++) {
-          CollectionReference<User> attendCollection =
-          FireBaseSetDataForLeader.getAttend(week);
-          QuerySnapshot<User> querySnapshot = await attendCollection.get();
-
-          List presentUserIds = querySnapshot.docs
-              .map((doc) =>
-          doc
-              .data()
-              .id)
-              .toList();
-
-          if (!presentUserIds.contains(user.id)) {
-            absenceCount[user.id] = (absenceCount[user.id] ?? 0) + 1;
-          }
-        }
-
-        // في حالة وجود غياب، نقوم بزيادة absencesSinceLack في Firestore
-      }
-
-      // تحديث البيانات فقط للمستخدمين الذين لديهم غيابات
-      absentUsers =
-          absenceCount.entries.where((entry) => entry.value > 0).map((entry,) {
-            MyUser user = users.firstWhere((u) => u.id == entry.key);
-
-            FireBaseSetDataForLeader.addAbsent(
-              id: user.id,
-              name: user.name,
-              absentCount: entry.value,
-              email: user.email,
-              address: user.address,
-              phone: user.phone,
-              profile: user.profileUrl,
-              whatsapp: user.phone,
-              lack: user.lack,
-              lackWeek: currentWeek,
-              // نحدث lackWeek إلى الأسبوع الحالي
-              facebook: user.facebook,
-            );
-
-            return {
-              "name": user.name,
-              "absences": entry.value,
-              "id": user.id,
-              "profile": user.profileUrl,
-              "email": user.email,
-              "phone": user.phone,
-              "address": user.address,
-              "whatsapp": user.phone,
-              "lack": user.lack,
-              "lackWeek": currentWeek,
-              "facebook": user.facebook,
-            };
-          }).toList();
-
-      notifyListeners();
-    } catch (e) {
-      print("Error calculating absences since last lack: $e");
-    }
-  }
 
   Stream<Map<int, bool>> streamWeekStatuses({
     required int monthNum,
@@ -518,205 +234,7 @@ class AuthProviders extends ChangeNotifier {
     });
   }
 
-  Future<void> setDataForUser({
-    required String nameU,
-    required String ageU,
-    required String emailU,
-    required String talentU,
-    required String universityU,
-    required String phoneU,
-    required String genderU,
-    required String profileU,
-    required String codeU,
-    required String addressU,
-    required String centerCodeU,
-    required String stageCodeUser,
-    required String stageTypeUser,
-    required String stageYearUser,
-    required String idForUser,
-    required String whatsapp,
-    required String facebook,
-  }) async {
-    sharedPreferences = await SharedPreferences.getInstance();
 
-    if (sharedPreferences == null) {
-      print("❌ Error: sharedPreferences is null");
-      return;
-    }
-
-    // 🟢 Print all values before saving
-    print("🔹 name: $nameU");
-    print("🔹 whatsapp: $whatsapp");
-    print("🔹 facebook: $facebook");
-    print("🔹 userId: $idForUser");
-    print("🔹 email: $emailU");
-    print("🔹 age: $ageU");
-    print("🔹 talent: $talentU");
-    print("🔹 university: $universityU");
-    print("🔹 phone: $phoneU");
-    print("🔹 gender: $genderU");
-    print("🔹 profile: $profileU");
-    print("🔹 code: $codeU");
-    print("🔹 address: $addressU");
-    print("🔹 church_code: $centerCodeU");
-    print("🔹 stage: $stageCodeUser");
-    print("🔹 stage_year: $stageYearUser");
-    print("🔹 stage_type: $stageTypeUser");
-
-
-    // ✅ Save to SharedPreferences
-    await sharedPreferences?.setString("name", nameU);
-    await sharedPreferences?.setString("userId", idForUser);
-    await sharedPreferences?.setString("email", emailU);
-    await sharedPreferences?.setString("age", ageU);
-    await sharedPreferences?.setString("talent", talentU);
-    await sharedPreferences?.setString("university", universityU);
-    await sharedPreferences?.setString("phone", phoneU);
-    await sharedPreferences?.setString("gender", genderU);
-    await sharedPreferences?.setString("profile", profileU);
-    await sharedPreferences?.setString("user_code", codeU);
-    await sharedPreferences?.setString("address", addressU);
-    await sharedPreferences?.setString("church_code", centerCodeU);
-    await sharedPreferences?.setString("stage", stageCodeUser);
-    await sharedPreferences?.setString("whatsapp", whatsapp);
-    await sharedPreferences?.setString("facebook", facebook);
-    await sharedPreferences?.setString("stage_year", stageYearUser);
-    await sharedPreferences?.setString("stage_type", stageTypeUser);
-
-
-    print("✅ بيانات المستخدم تم تخزينها في SharedPreferences");
-
-    // 🟢 Set to provider and print after
-   // await setUserData();
-
-    // 🟣 Print from AuthProvider
-    print(
-        "🔁 بيانات المستخدم بعد التحميل من SharedPreferences داخل AuthProvider:");
-    print("🔸 الاسم: $_name");
-    print("🔸 فيسبوك: $_facebook");
-    print("🔸 واتساب: $_whatsapp");
-    print("🔸 الإيميل: $_email");
-    print("🔸 التليفون: $_phone");
-    print("🔸 العمر: $_ageUser");
-    print("🔸 النوع: $_gender");
-    print("🔸 العنوان: $_address");
-    print("🔸 الجامعة: $_university");
-    print("🔸 المواهب: $_talent"); // لو مخزنتهاش في AuthProvider ضيفها
-    print("🔸 الكود: $_codeUs");
-    print("🔸 المرحلة: $_stageCodeUs");
-    print("🔸 سنة المرحلة: $_stageYearUser");
-    print("🔸 نوع المرحلة: $_stageTypeUser");
-    print("🔸 اسم الكنيسة: $_churchUs");
-    print("🔸 كود الكنيسة: $_churchCode");
-    print("🔸 كود المحافظة: $_governorateCode");
-    print("🔸 اسم المحافظة: $_governorateUs");
-    print("🔸 ID: $_userId");
-    print("🔸 الصورة: $_profileURl");
-  }
-
-  Future<void> setUserData() async {
-    print("get data from shired to provider");
-    String? codeUser = await Consts.getUserCode(); //1
-    print("User Code: $codeUser");
-
-    String? stageCode = await Consts.getUserStage();
-    print("Stage Code: $stageCode");
-    String? talent = await Consts.getTalent();
-    print("talent: $talent");
-
-    String? stageType = await Consts.getUserStageType();
-    print("Stage Type: $stageType");
-
-    String? stageYear = await Consts.getUserStageYear();
-    print("Stage Year: $stageYear");
-
-    String? age = await Consts.getUserAge();
-    print("Age: $age");
-
-    String? gender = await Consts.getGender();
-    print("Gender: $gender");
-
-    String? address = await Consts.getAddress();
-    print("Address: $address");
-
-    String? name = await Consts.getName();
-    print("Name: $name");
-
-    String? id = await Consts.getUserId();
-    print("User ID: $id");
-
-    String? email = await Consts.getEmail();
-    print("Email: $email");
-
-    String? university = await Consts.getUniversity();
-    print("University: $university");
-
-    String? profile = await Consts.getProfile();
-    print("Profile URL: $profile");
-
-    String? governorateName = await Consts.getUserGovernorate();
-    print("Governorate Name: $governorateName");
-
-    String? phone = await Consts.getPhone();
-    print("Phone: $phone");
-
-    String? churchName = await Consts.getUserchurchName();
-    print("Church Name: $churchName");
-
-    String? governorateCodeUser = await Consts.getGovernorateCode();
-    print("Governorate Code: $governorateCodeUser");
-
-    String? churchCode = await Consts.getUserchurchCode();
-    print("Church Code: $churchCode");
-    String? whatsappUser = await Consts.getWhatsapp();
-    print("whatsappUser: $whatsappUser");
-    String? facebookUser = await Consts.getFacebook();
-    print("facebookUser : $facebookUser");
-
-    // حفظ البيانات في المتغيرات
-    _gender = gender;
-    _stageCodeUs = stageCode;
-    _stageTypeUser = stageType;
-    _stageYearUser = stageYear;
-    _ageUser = age;
-    _governorateUs = governorateName;
-    _governorateCode = governorateCodeUser;
-    _churchUs = churchName;
-    _churchCode = churchCode;
-    _name = name;
-    _address = address;
-    _email = email;
-    _talent = talent;
-    _phone = phone;
-    _profileURl = profile;
-    _userId = id;
-    _university = university;
-    _codeUs = codeUser;
-    _facebook=facebookUser;
-    _whatsapp=whatsappUser;
-    notifyListeners();
-    print(
-        "🔁 بيانات المستخدم بعد التحميل من SharedPreferences داخل AuthProvider:");
-    print("🔸 الاسم: $_name");
-    print("🔸 الإيميل: $_email");
-    print("🔸 التليفون: $_phone");
-    print("🔸 العمر: $_ageUser");
-    print("🔸 النوع: $_gender");
-    print("🔸 العنوان: $_address");
-    print("🔸 الجامعة: $_university");
-    print("🔸 المواهب: $_talent"); // لو مخزنتهاش في AuthProvider ضيفها
-    print("🔸 الكود: $_codeUs");
-    print("🔸 المرحلة: $_stageCodeUs");
-    print("🔸 سنة المرحلة: $_stageYearUser");
-    print("🔸 نوع المرحلة: $_stageTypeUser");
-    print("🔸 اسم الكنيسة: $_churchUs");
-    print("🔸 كود الكنيسة: $_churchCode");
-    print("🔸 كود المحافظة: $_governorateCode");
-    print("🔸 اسم المحافظة: $_governorateUs");
-    print("🔸 ID: $_userId");
-    print("🔸 الصورة: $_profileURl");
-    print("DONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNEEEEEEEEEEEE");
-  }
 
 
   Future<void> setDataForSubLeader({
@@ -878,136 +396,10 @@ class AuthProviders extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> calculateAbsentUser({
-    required int currentWeek,
-    required String governorate,
-    required String church,
-    required String stage,
-  }) async {
-    try {
-      Map<String, int> absenceCount = {};
-      Map<int, List<String>> allAttendances = {};
 
-      // 🔁 جلب بيانات الحضور لكل أسبوع من الأسبوع 1 إلى الأسبوع الحالي
-      for (int week = 1; week <= currentWeek; week++) {
-        var attendCollection = New_fire_base_set_data_for_leader.getAttend(
-          numWeek: week,
-          governorate: governorate,
-          church: church,
-          stage: stage,
-        );
 
-        var snapshot = await attendCollection.get();
-        allAttendances[week] = snapshot.docs.map((doc) => doc.id).toList();
-      }
 
-      for (var user in users) {
-        if (user.lackWeek == null) continue;
 
-        // 🧮 نبدأ الحساب من الأسبوع بعد lackWeek
-        int startWeek = user.lackWeek! + 1;
-        if (startWeek > currentWeek) continue;
-
-        int absences = 0;
-
-        // 👇 فقط من startWeek إلى currentWeek
-        for (int week = startWeek; week <= currentWeek; week++) {
-          bool attended = allAttendances[week]?.contains(user.id) ?? false;
-          if (!attended) {
-            absences++;
-          }
-        }
-
-        if (absences > 0) {
-          absenceCount[user.id] = absences;
-        }
-      }
-
-      // 📤 إرسال النتائج إلى Firebase
-      await Future.wait(
-        absenceCount.entries.map((entry) async {
-          final user = users.firstWhere((u) => u.id == entry.key);
-
-          await New_fire_base_set_data_for_leader.addAbsent(
-            id: user.id,
-            name: user.name,
-            code: user.code,
-            absentCount: entry.value,
-            email: user.email,
-            address: user.address,
-            phone: user.phone,
-            profile: user.profileUrl,
-            whatsapp: user.phone,
-            lack: user.lack,
-            facebook: user.facebook,
-            governorate: governorate,
-            church: church,
-            stage: stage,
-          );
-        }),
-      );
-
-      // 📋 تحديث قائمة الغيابات في الذاكرة
-      absentUsers = absenceCount.entries.map((entry) {
-        final user = users.firstWhere((u) => u.id == entry.key);
-        return {
-          "name": user.name,
-          "absences": entry.value,
-          "id": user.id,
-          "profile": user.profileUrl,
-          "email": user.email,
-          "phone": user.phone,
-          "address": user.address,
-          "whatsapp": user.phone,
-          "lack": user.lack,
-          "lackWeek": currentWeek,
-          "facebook": user.facebook,
-        };
-      }).toList();
-
-      notifyListeners();
-    } catch (e) {
-      print("❌ Error calculating absences: $e");
-    }
-  }
-
-  static Future<void> addAttend({
-    required String userId,
-    required int week,
-    required String governorate,
-    required String church,
-    required String stage,
-  }) async {
-    await FirebaseFirestore.instance
-        .collection("governorate")
-        .doc(governorate)
-        .collection("church")
-        .doc(church)
-        .collection("activites")
-        .doc(stage)
-        .collection("numWeek")
-        .doc(week.toString())
-        .collection("attend")
-        .doc(userId) // ← أهم حاجة: الـ ID هو user.id
-        .set({"attendedAt": DateTime.now()});
-  }
-
-  Future<void> updateUserData({
-    required Map<String, dynamic> updatedData,
-    required String governorate,
-    required String church,
-    required String stage,
-    required String code,
-    required String userId,
-  }) async {
-    await FirebaseFirestore.instance
-        .collection("governorate").doc(governorate)
-        .collection('church').doc(church)
-        .collection('users_church').doc(stage)
-        .collection('users').doc(code)
-        .collection(MyUser.collection).doc(userId)
-        .update(updatedData);
-  }
   void updateProfileUrl(String newUrl) {
     _profileURl = newUrl;
     notifyListeners(); // This will rebuild widgets that depend on profileURl

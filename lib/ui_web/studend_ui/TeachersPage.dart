@@ -2,19 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../ui/screens/utilites/appAssets.dart';
+import '../consts_web.dart';
 
 class TeachersPage extends StatefulWidget {
   static const String routeName = "TeachersPage";
 
-  final String centerCode;
-  final String studentCode;
-  final String stageCode;
 
   const TeachersPage({
     super.key,
-    required this.centerCode,
-    required this.studentCode,
-    required this.stageCode,
+
   });
 
   @override
@@ -27,6 +23,28 @@ class _TeachersPageState extends State<TeachersPage> with TickerProviderStateMix
   List<QueryDocumentSnapshot> _teachers = [];
   bool _isLoading = true;
   String? _errorMessage;
+  String? centerCode;
+  String? codeStudent;
+  String? stageCode;
+
+  Future<void> getData() async {
+
+    final pp = await ConstsWeb.getStudentData(key: ConstsWeb.codeStudent);
+    final loc = await ConstsWeb.getStudentData(key: ConstsWeb.centerCode);
+    final stg = await ConstsWeb.getStudentData(key: ConstsWeb.stageCode);
+
+    setState(() {
+      codeStudent = pp;
+      centerCode = loc;
+      stageCode = stg;
+    });
+
+    print("✔ البيانات المحملة: $codeStudent, $centerCode, $stageCode, ");
+    _loadTeachers();
+  }
+
+
+
 
   @override
   void initState() {
@@ -41,14 +59,16 @@ class _TeachersPageState extends State<TeachersPage> with TickerProviderStateMix
     _animationController.forward();
 
     // Load teachers data once
-    _loadTeachers();
+    getData();
   }
 
   Future<void> _loadTeachers() async {
+    print("🔥 READ _loadTeachers");
+
     try {
       final querySnapshot = await FirebaseFirestore.instance
           .collection("center")
-          .doc(widget.centerCode)
+          .doc(centerCode)
           .collection("Mr")
           .get();
 
@@ -421,7 +441,10 @@ class _TeachersPageState extends State<TeachersPage> with TickerProviderStateMix
   }
 
   Future<void> subscribeStudentToTeacher(
-      String teacherCode, BuildContext context) async {
+
+  String teacherCode, BuildContext context) async {
+    print("🔥 READ subscribeStudentToTeacher");
+
     // Show loading dialog
     showDialog(
       context: context,
@@ -445,25 +468,26 @@ class _TeachersPageState extends State<TeachersPage> with TickerProviderStateMix
     try {
       final studentRef = FirebaseFirestore.instance
           .collection("center")
-          .doc(widget.centerCode)
+          .doc(centerCode)
           .collection("Student")
-          .doc(widget.stageCode)
+          .doc(stageCode)
           .collection("users")
-          .doc(widget.studentCode);
+          .doc(codeStudent);
 
       final teacherRef = FirebaseFirestore.instance
           .collection("center")
-          .doc(widget.centerCode)
+          .doc(centerCode)
           .collection("Mr")
           .doc(teacherCode);
 
       await FirebaseFirestore.instance.runTransaction((transaction) async {
+
         transaction.update(studentRef, {
           "teachers": FieldValue.arrayUnion([teacherCode])
         });
 
         transaction.update(teacherRef, {
-          "students": FieldValue.arrayUnion([widget.studentCode])
+          "students": FieldValue.arrayUnion([codeStudent])
         });
       });
 

@@ -7,6 +7,10 @@ class Student {
   final String name;
   final String stage;
 
+  final String phoneStudent;
+  final String phoneParent;
+  final String location;
+
   final Map<String, dynamic> paidModules;
   final Map<String, WatchedVideo> watchedVideos;
   final Map<String, AssignmentStatus> assignments;
@@ -22,7 +26,6 @@ class Student {
   final String role;
   final bool isRegistered;
   final DateTime? createdAt;
-
   Student({
     required this.id,
     required this.name,
@@ -40,6 +43,9 @@ class Student {
     required this.isRegistered,
     required this.createdAt,
     required this.teachers,
+    required this.phoneParent,
+    required this.phoneStudent,
+    required this.location,
   });
 
   factory Student.fromMap(String id, Map<String, dynamic> data) {
@@ -83,6 +89,9 @@ class Student {
       id: id,
       name: data['name'] ?? '',
       stage: data['stage'] ?? '',
+      phoneParent: data['phoneParent'] ?? '',
+      phoneStudent: data['phoneStudent'] ?? '',
+      location: data['location'] ?? '',
       paidModules: Map<String, dynamic>.from(data['paidModules'] ?? {}),
       watchedVideos: parsedWatchedVideos,
       assignments: parsedAssignments,
@@ -107,6 +116,9 @@ class Student {
       'id': id,
       'name': name,
       'stage': stage,
+      'location': location,
+      'phoneStudent': phoneStudent,
+      'phoneParent': phoneParent,
       'paidModules': paidModules,
       'watchedVideos': watchedVideos.map((k, v) => MapEntry(k, v.toMap())),
       'assignments': assignments.map((k, v) => MapEntry(k, v.toMap())),
