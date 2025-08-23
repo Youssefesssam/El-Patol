@@ -190,23 +190,18 @@ class New_fire_base_set_data_for_user {
 
   // دالة التصويت أو إلغاء التصويت
   static Future<MyUser?> readUserData2({
-    required String governorate,
-    required String churchCode,
+    required String centerCode,
     required String stageCode,
     required String code,
     required String userId,
   }) async {
     var snapshot = await FirebaseFirestore.instance
-        .collection("governorate")
-        .doc(governorate)
-        .collection('church')
-        .doc(churchCode)
-        .collection('users_church')
+        .collection('center')
+        .doc(centerCode)
+        .collection('Student')
         .doc(stageCode)
         .collection('users')
         .doc(code)
-        .collection(MyUser.collection)
-        .doc(userId)
         .get();
 
     if (snapshot.exists) {

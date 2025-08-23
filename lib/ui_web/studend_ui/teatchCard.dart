@@ -44,10 +44,12 @@ class TeatchCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(50),
             child: Image.asset(
               image,
+              height: 5,
+              width: 5,
               fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
           Text(
             name,
             style: GoogleFonts.cairo(
@@ -63,7 +65,7 @@ class TeatchCard extends StatelessWidget {
               color: Colors.grey[600],
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

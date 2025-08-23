@@ -18,6 +18,7 @@ class AddUserScreen extends StatefulWidget {
 class _AddUserScreenState extends State<AddUserScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _codeMrController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   String? _stageType;
@@ -105,6 +106,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
             child: ListView(
               children: [
                 _buildHeaderSection(),
+                _builCodeField(),
                 _buildGovernorateCard(authProviders),
                 const SizedBox(height: 15),
                 _buildChurchCard(authProviders),
@@ -117,7 +119,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 const SizedBox(height: 30),
                 _buildPhoneField(),
                 const SizedBox(height: 30),
-                _buildSubmitButton(authProviders),
+                _buildSubmitButton(authProviders,_codeMrController.text),
               ],
             ),
           ),
@@ -167,6 +169,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
       value: authProviders.church!,
     );
   }
+
 
   Widget _buildStageDropdown() {
     return DropdownButtonFormField<String>(
@@ -224,6 +227,17 @@ class _AddUserScreenState extends State<AddUserScreen> {
       },
     );
   }
+  Widget _builCodeField() {
+    return TextFormField(
+      controller: _codeMrController,
+      decoration: _buildInputDecoration('كود المستر'),
+      style: const TextStyle(color: Colors.white),
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'من فضلك أدخل كود المستر';
+        return null;
+      },
+    );
+  }
 
   Widget _buildPhoneField() {
     return TextFormField(
@@ -259,7 +273,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 
-  Widget _buildSubmitButton(AuthProviders authProviders) {
+  Widget _buildSubmitButton(AuthProviders authProviders,String codeMr) {
     return InkWell(
       onTap: () async {
         if (!_formKey.currentState!.validate()) return;
@@ -273,11 +287,26 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
         String userCode = "";
         try {
+          // ✅ تحقق من كود المستر الأول
+          if (false) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("❌ كود المستر غير صحيح"),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+            setState(() => _isLoading = false);
+            return; // وقف هنا
+          }
+
+          // ✅ لو الكود صحيح كمل
           userCode = await FirebaseService.addNewUser(
-            authProviders.governorateCode!,
-            authProviders.churchCodeL!,
-            stageCode,
-            userName,
+            userName: userName,
+            centerCode: '101' ,
+            codeMr:codeMr ,
+            stageCode: stageCode,
           );
 
           await sendUserCodeInWhatsapp(
@@ -407,6 +436,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
       ),
     );
   }
+
 
   String _getStageName(String stageType) {
     switch (stageType) {

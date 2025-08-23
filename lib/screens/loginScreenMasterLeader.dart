@@ -13,7 +13,8 @@ class LoginScreenMasterLeader extends StatefulWidget {
   static const String routeName = "LoginScreenLeader";
 
   @override
-  _LoginScreenMasterLeaderState createState() => _LoginScreenMasterLeaderState();
+  _LoginScreenMasterLeaderState createState() =>
+      _LoginScreenMasterLeaderState();
 }
 
 class _LoginScreenMasterLeaderState extends State<LoginScreenMasterLeader> {
@@ -42,21 +43,21 @@ class _LoginScreenMasterLeaderState extends State<LoginScreenMasterLeader> {
 
   Future<void> _handleLogin(String code) async {
     try {
+      // ✅ دلوقتي بنفك الكود مباشرة
       Map<String, dynamic> codeData = FirebaseService.codeDetails(
         code,
         code.substring(0),
       );
 
       final auth = Provider.of<AuthProviders>(context, listen: false);
-      final leaderProvider = Provider.of<LeaderProvider>(context, listen: false);
+      final leaderProvider =
+          Provider.of<LeaderProvider>(context, listen: false);
 
-      if (code.startsWith('M')) {
+      if (code.startsWith('Mr')) {
         final snapshot = await FirebaseFirestore.instance
-            .collection("governorate")
-            .doc(codeData["governateName"])
-            .collection('church')
+            .collection("center")
             .doc(codeData["churchCode"])
-            .collection("master_leader_church")
+            .collection('Mr')
             .doc(code)
             .get();
 
@@ -66,11 +67,10 @@ class _LoginScreenMasterLeaderState extends State<LoginScreenMasterLeader> {
 
           leaderProvider.setCurrentLeader(leader);
 
-          // ✅ خزنه في SharedPrefs والبروفايدر
           await auth.setDataForMaster(
             code: code,
             church_code: codeData["churchCode"],
-            governorateName: codeData["governateName"],
+            governorateName: data["governorateName"] ?? "",
           );
 
           Navigator.pushReplacementNamed(context, MasterLeaderScreen.routeName);
@@ -147,18 +147,22 @@ class _LoginScreenMasterLeaderState extends State<LoginScreenMasterLeader> {
               style: TextStyle(fontSize: 20, color: Colors.blue.shade900),
               decoration: InputDecoration(
                 hintText: 'مثال: M_SUEZ_102_P3',
-                hintStyle: TextStyle(color: Colors.blue.shade700.withOpacity(0.6)),
-                prefixIcon: Icon(Icons.lock_outline, color: Colors.blue.shade900),
+                hintStyle:
+                    TextStyle(color: Colors.blue.shade700.withOpacity(0.6)),
+                prefixIcon:
+                    Icon(Icons.lock_outline, color: Colors.blue.shade900),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
-                contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.blue.shade200, width: 1.5),
+                  borderSide:
+                      BorderSide(color: Colors.blue.shade200, width: 1.5),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

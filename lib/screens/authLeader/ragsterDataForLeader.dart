@@ -19,6 +19,7 @@ class RagsterDataForLeader extends StatefulWidget {
 }
 
 class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
+  final TextEditingController _codeMrController = TextEditingController();
   final TextEditingController _codeController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -31,11 +32,12 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
   final List<String> genders = ['ذكر', 'أنثى'];
 
   late String governorateCode;
-  late String churchCode;
+  late String centerCode;
   String? governorate;
 
   @override
   void dispose() {
+    _codeMrController.dispose();
     _codeController.dispose();
     _nameController.dispose();
     _phoneController.dispose();
@@ -49,6 +51,7 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
       if (!mounted) return;
       setState(() => _isLoading = true);
 
+      final codeMr = _codeMrController.text.trim();
       final code = _codeController.text.trim();
       final name = _nameController.text.trim();
       final specialty = _specialtyController.text.trim();
@@ -69,19 +72,12 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
 
       // التحقق من صحة كود الليدر
       if (code.length >= 7 && code.startsWith('L')) {
-        governorateCode = code.substring(1, 3);
-        governorate = await GovernorateService.getEnglishName(governorateCode);
 
         if (!mounted) return;
-        if (governorate == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('كود المحافظة غير صحيح')),
-          );
-          setState(() => _isLoading = false);
-          return;
-        }
 
-        churchCode = code.substring(3, 6);
+
+        centerCode = code.substring(1, 4);
+        print("pppppppppppppppppppppppppppppp$centerCode");
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,11 +88,11 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
 
       try {
         final DocumentReference leaderRef = FirebaseFirestore.instance
-            .collection("governorate")
-            .doc(governorate)
-            .collection('church')
-            .doc(churchCode)
-            .collection('sub_leaders_church')
+            .collection("center")
+            .doc(centerCode)
+            .collection('Mr')
+            .doc(codeMr)
+            .collection("assistant")
             .doc(code);
 
         final snapshot = await leaderRef.get();
@@ -123,9 +119,9 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
           ).setCurrentLeader(leader);
 
           final leadercode = await FirebaseService.getCodeSubLeader(
-            governorate!,
-            churchCode,
+            centerCode,
             code,
+            codeMr
           );
 
           if (leadercode != null) {
@@ -248,9 +244,13 @@ class _RagsterDataForLeaderState extends State<RagsterDataForLeader> {
                       key: _formKey,
                       child: Column(
                         children: [
+                          _buildTextFieldWithIcon(
+                              "كود المستر", Icons.badge_outlined, _codeMrController,
+                              validator: (value) =>
+                              value == null || value.isEmpty ? 'يرجى إدخال الكود' : null),
                           const SizedBox(height: 20),
                           _buildTextFieldWithIcon(
-                              "كود الليدر", Icons.badge_outlined, _codeController,
+                              "كود الاسيست", Icons.badge_outlined, _codeController,
                               validator: (value) =>
                               value == null || value.isEmpty ? 'يرجى إدخال الكود' : null),
                           const SizedBox(height: 20),

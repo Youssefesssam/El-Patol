@@ -26,13 +26,11 @@ class ChurchService {
   }
 
   // دالة محدثة لجلب اسم الكنيسة من Firebase
-  static Future<String> getChurchName(String governorateCode, String churchCode) async {
+  static Future<String> getChurchName( String centerCode) async {
     try {
       final DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection("governorate")
-          .doc(governorateCode)
-          .collection("church")
-          .doc(churchCode)
+          .collection("center")
+          .doc(centerCode)
           .get();
 
       if (docSnapshot.exists && docSnapshot.data() is Map<String, dynamic>) {

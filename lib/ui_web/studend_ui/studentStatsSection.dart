@@ -1,115 +1,396 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:el_patol/ui_web/studend_ui/statCard.dart';
+import 'package:el_patol/ui_web/studend_ui/teacherModulesScreen.dart';
 import 'package:el_patol/ui_web/studend_ui/teatchCard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../models_web/model_student.dart';
 import '../../ui/screens/utilites/appAssets.dart';
-class StudentStatsSection extends StatelessWidget {
+
+class StudentStatsSection extends StatefulWidget {
   const StudentStatsSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
+  State<StudentStatsSection> createState() => _StudentStatsSectionState();
+}
 
-        Row(
-          children: [
-            Container(
-              width: 150,
-              height: 150,
-              child: Image.asset(
-                AppAssets.officerWomen,
-                fit: BoxFit.contain, // الصورة هتصغر وتتملأ بدون تقطيع
+class _StudentStatsSectionState extends State<StudentStatsSection> {
+  late Future<Map<String, dynamic>> _studentDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _studentDataFuture = _fetchStudentData();
+  }
+
+  Future<Map<String, dynamic>> _fetchStudentData() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('center')
+        .doc('101')
+        .collection('Student')
+        .doc('P_1')
+        .collection('users')
+        .doc('SP11011960')
+        .get();
+
+    if (!doc.exists) {
+      throw Exception("لا توجد بيانات للطالب");
+    }
+
+    final data = doc.data()!;
+    List<String> teacherCodes = [];
+    if (data['teachers'] != null && data['teachers'] is List) {
+      teacherCodes = List<String>.from(data['teachers']);
+    }
+
+    // تحميل بيانات كل المدرسين مره واحدة
+    final teacherDocs = await Future.wait(
+      teacherCodes.map((code) async {
+        final tDoc = await FirebaseFirestore.instance
+            .collection('center')
+            .doc('101')
+            .collection('Mr')
+            .doc(code)
+            .get();
+
+        final teacherData = tDoc.data();
+        int studentsCount = 0;
+
+        // حساب عدد الطلاب من قائمة students
+        if (teacherData != null && teacherData['students'] != null) {
+          if (teacherData['students'] is List) {
+            studentsCount = (teacherData['students'] as List).length;
+          }
+        }
+
+        return {
+          "id": code,
+          "data": teacherData,
+          "studentsCount": studentsCount,
+        };
+      }),
+    );
+
+    return {
+      "studentId": doc.id,
+      "studentData": data,
+      "teachers": teacherDocs,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 800;
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTeachersSection(isSmallScreen),
+          const SizedBox(height: 20),
+
+          // FutureBuilder بدل StreamBuilder
+          FutureBuilder<Map<String, dynamic>>(
+            future: _studentDataFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    "خطأ: ${snapshot.error}",
+                    style: GoogleFonts.cairo(color: Colors.red),
+                  ),
+                );
+              }
+
+              if (!snapshot.hasData) {
+                return const Text("لا توجد بيانات");
+              }
+
+              final data = snapshot.data!;
+              final studentId = data["studentId"];
+              final studentData = data["studentData"];
+              final teachers = data["teachers"] as List;
+
+              if (teachers.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    "لم يتم التسجيل مع أي مدرس بعد",
+                    style: GoogleFonts.cairo(color: Colors.grey[600]),
+                  ),
+                );
+              }
+
+              return Container(
+                height: isSmallScreen ? 160 : 180,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child:  LayoutBuilder(
+                  builder: (context, constraints) {
+                // تحديد حجم الكارد حسب عرض الشاشة
+                final isSmallScreen = constraints.maxWidth < 600;
+                final cardWidth = isSmallScreen ? 200.0 : 240.0;
+                final cardHeight = isSmallScreen ? 160.0 : 180.0;
+
+                return Container(
+                  height: cardHeight,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: teachers.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 16),
+                    itemBuilder: (context, index) {
+                      final teacher = teachers[index];
+                      final teacherData = teacher["data"] as Map<String, dynamic>?;
+
+                      final teacherName = teacherData?['name'] ?? "مستر";
+                      final teacherSpecialty = teacherData?['specialty'] ?? "مادة غير معروفة";
+                      final teacherImage = AppAssets.man;
+
+                      final tempStudent = Student.fromMap(studentId, {
+                        ...studentData,
+                        'teachers': {teacher["id"]: teacherSpecialty}
+                      });
+
+                      return SizedBox(
+                        width: cardWidth,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TeacherModulesScreen(
+                                  teacherId: teacher["id"],
+                                  student: tempStudent,
+                                ),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // صورة المعلم تملى الكارد
+                                Image.asset(
+                                  teacherImage,
+                                  fit: BoxFit.cover,
+                                ),
+
+                                // Gradient Overlay لتوضيح النص
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.6),
+                                        Colors.black.withOpacity(0.8),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+
+                                // محتوى النص
+                                Positioned(
+                                  bottom: 12,
+                                  left: 12,
+                                  right: 12,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        teacherName,
+                                        style: GoogleFonts.cairo(
+                                          fontSize: isSmallScreen ? 12 : 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withOpacity(0.7),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 1),
+                                            ),
+                                          ],
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        teacherSpecialty,
+                                        style: GoogleFonts.cairo(
+                                          fontSize: isSmallScreen ? 10 : 12,
+                                          color: Colors.orange.shade200,
+                                          fontWeight: FontWeight.w500,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black.withOpacity(0.7),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 1),
+                                            ),
+                                          ],
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                );
+              },
+              )
+              );
+            },
+          ),
+
+          const SizedBox(height: 30),
+          _buildStatsSection(isSmallScreen),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeachersSection(bool isSmallScreen) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: isSmallScreen
+          ? Column(
+        children: [
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: Image.asset(AppAssets.officerWomen, fit: BoxFit.contain),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            "المدرسين الذي اشتركت معهم",
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.green[700],
+            ),
+          ),
+        ],
+      )
+          : Row(
+        children: [
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: Image.asset(AppAssets.officerWomen, fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              "المدرسين الذي اشتركت معهم",
+              style: GoogleFonts.cairo(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[700],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "المدرسين الذي اشتركت معهم",
+  Widget _buildStatsSection(bool isSmallScreen) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: isSmallScreen
+              ? Column(
+            children: [
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: Image.asset(AppAssets.officer, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "الاحصائيات",
+                textAlign: TextAlign.center,
                 style: GoogleFonts.cairo(
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.green[700],
                 ),
               ),
-            ),
-          ],
-        ),
-        Container(
-          margin: const EdgeInsets.all(5),
-          child: const Row(
+            ],
+          )
+              : Row(
             children: [
-              Expanded(
-                child: TeatchCard(
-                  image: AppAssets.docwomen,
-                  name: "أ. أحمد علي",
-                  subject: "رياضيات",
-                  studentsCount: 30,
-                  attended: 20,
-                  totalClasses: 25,
-                ),
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: Image.asset(AppAssets.officer, fit: BoxFit.cover),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 16),
               Expanded(
-                child: TeatchCard(
-                  image: AppAssets.gym,
-                  name: "أ. أحمد علي",
-                  subject: "رياضيات",
-                  studentsCount: 30,
-                  attended: 20,
-                  totalClasses: 25,
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TeatchCard(
-                  image: AppAssets.girl1,
-                  name: "أ. محمد حسن",
-                  subject: "فيزياء",
-                  studentsCount: 25,
-                  attended: 15,
-                  totalClasses: 20,
-                ),
-              ),
-              SizedBox(width: 8),
-              Expanded(
-                child: TeatchCard(
-                  image: AppAssets.girl3,
-                  name: "أ.  يوسف",
-                  subject: "كيمياء",
-                  studentsCount: 28,
-                  attended: 18,
-                  totalClasses: 22,
+                child: Text(
+                  "الاحصائيات",
+                  style: GoogleFonts.cairo(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[700],
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        Row(
-          children: [
-            Image.asset(
-              AppAssets.officer,
-              fit: BoxFit.cover,
-              width: 150,
-              height: 150,// عشان تملأ المساحة
-            ),
-            Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                "الاحصائيات",
-                style: GoogleFonts.cairo(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green[700],
-                ),
-              ),
-            ),
-          ],
-        ),
         Container(
-          margin: const EdgeInsets.all(5),
-          child: const Row(
+          margin: const EdgeInsets.all(16),
+          child: isSmallScreen
+              ? const Column(
+            children: [
+              StatCard(
+                icon: Icons.edit,
+                title: "عدد الاختبارات اللي خلصتها",
+                value: 0,
+                max: 0,
+              ),
+              SizedBox(height: 12),
+              StatCard(
+                icon: Icons.videocam,
+                title: "عدد مرات مشاهدة الفيديوهات",
+                value: 0,
+                max: 0,
+              ),
+              SizedBox(height: 12),
+              StatCard(
+                icon: Icons.check_circle_outline,
+                title: "الدرجات اللي حصلت عليها",
+                value: 0,
+                max: 0,
+              ),
+            ],
+          )
+              : const Row(
             children: [
               Expanded(
                 child: StatCard(
@@ -119,7 +400,7 @@ class StudentStatsSection extends StatelessWidget {
                   max: 0,
                 ),
               ),
-              SizedBox(width: 8),
+              SizedBox(width: 12),
               Expanded(
                 child: StatCard(
                   icon: Icons.videocam,
@@ -128,7 +409,7 @@ class StudentStatsSection extends StatelessWidget {
                   max: 0,
                 ),
               ),
-              SizedBox(width: 8),
+              SizedBox(width: 12),
               Expanded(
                 child: StatCard(
                   icon: Icons.check_circle_outline,

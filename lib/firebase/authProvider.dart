@@ -529,14 +529,11 @@ class AuthProviders extends ChangeNotifier {
     required String profileU,
     required String codeU,
     required String addressU,
-    required String churchCodeU,
-    required String governateCodeU,
-    required String governorateNameForUser,
+    required String centerCodeU,
     required String stageCodeUser,
     required String stageTypeUser,
     required String stageYearUser,
     required String idForUser,
-    required String churchU,
     required String whatsapp,
     required String facebook,
   }) async {
@@ -561,13 +558,11 @@ class AuthProviders extends ChangeNotifier {
     print("🔹 profile: $profileU");
     print("🔹 code: $codeU");
     print("🔹 address: $addressU");
-    print("🔹 church_code: $churchCodeU");
+    print("🔹 church_code: $centerCodeU");
     print("🔹 stage: $stageCodeUser");
     print("🔹 stage_year: $stageYearUser");
     print("🔹 stage_type: $stageTypeUser");
-    print("🔹 church: $churchU");
-    print("🔹 governorateCode: $governateCodeU");
-    print("🔹 governorateName: $governorateNameForUser");
+
 
     // ✅ Save to SharedPreferences
     await sharedPreferences?.setString("name", nameU);
@@ -581,16 +576,13 @@ class AuthProviders extends ChangeNotifier {
     await sharedPreferences?.setString("profile", profileU);
     await sharedPreferences?.setString("user_code", codeU);
     await sharedPreferences?.setString("address", addressU);
-    await sharedPreferences?.setString("church_code", churchCodeU);
+    await sharedPreferences?.setString("church_code", centerCodeU);
     await sharedPreferences?.setString("stage", stageCodeUser);
     await sharedPreferences?.setString("whatsapp", whatsapp);
     await sharedPreferences?.setString("facebook", facebook);
     await sharedPreferences?.setString("stage_year", stageYearUser);
     await sharedPreferences?.setString("stage_type", stageTypeUser);
-    await sharedPreferences?.setString("church", churchU);
-    await sharedPreferences?.setString("governorateCode", governateCodeU);
-    await sharedPreferences?.setString(
-        "governorateName", governorateNameForUser);
+
 
     print("✅ بيانات المستخدم تم تخزينها في SharedPreferences");
 

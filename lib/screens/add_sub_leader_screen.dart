@@ -18,7 +18,6 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String? _specialty;
-  late String governorateCode;
   late String churchCode;
   bool _isInit = false;
   bool _isLoading = false;
@@ -49,15 +48,13 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
     if (!_isInit) {
       String _masterLeaderCode = authProviders.codeMaster!;
       if (_masterLeaderCode.length >= 6) {
-        governorateCode = _masterLeaderCode.substring(1, 3);
-        churchCode = _masterLeaderCode.substring(3, 6);
+        churchCode = _masterLeaderCode.substring(2, 5);
       } else {
         Future.microtask(() {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('كود الليدر العام غير صحيح')),
           );
         });
-        governorateCode = 'XX';
         churchCode = 'XXX';
       }
       _isInit = true;
@@ -66,6 +63,8 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AuthProviders authProviders = Provider.of(context, listen: false);
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -131,10 +130,7 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
                                 color: Colors.white),
                           ),
                           Spacer(),
-                          Text(
-                            GovernorateService.getName(governorateCode, 'ar'),
-                            style: TextStyle(color: Colors.white),
-                          ),
+
                         ],
                       ),
                       Divider(),
@@ -150,8 +146,7 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
                           ),
                           Spacer(),
                           FutureBuilder<String>(
-                            future: ChurchService.getChurchName(
-                                GovernorateService.getName(governorateCode, 'en'), churchCode),
+                            future: ChurchService.getChurchName(churchCode),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -309,10 +304,10 @@ class _AddSubLeaderScreenState extends State<AddSubLeaderScreen> {
 
                     // إضافة الليدر مباشرة بدون مرحلة
                     final leaderCode = await FirebaseService.addNewSubLeader(
-                      governorateCode,
                       churchCode,
                       _specialty!,
                       leaderName,
+                        authProviders.codeMaster!
                     );
 
                     sendLeaderCodeInWhatsapp(

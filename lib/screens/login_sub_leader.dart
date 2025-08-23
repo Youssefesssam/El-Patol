@@ -18,11 +18,10 @@ class LoginSubLeaderScreen extends StatefulWidget {
 class _LoginSubLeaderScreenState extends State<LoginSubLeaderScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _codeController = TextEditingController();
+  final TextEditingController _codeMrController = TextEditingController();
   bool _isLoading = false;
 
-  late String governorateCode;
-  late String churchCode;
-  String? governorate;
+  late String centerCode;
 
   Future<void> _submitForm(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
@@ -30,17 +29,8 @@ class _LoginSubLeaderScreenState extends State<LoginSubLeaderScreen> {
 
       String code = _codeController.text.trim();
       if (code.length >= 6 && code.startsWith('L')) {
-        governorateCode = code.substring(1, 3);
-        governorate = await GovernorateService.getEnglishName(governorateCode);
-        churchCode = code.substring(3, 6);
+        centerCode = code.substring(1, 4);
 
-        if (governorate == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('كود المحافظة غير صحيح')),
-          );
-          setState(() => _isLoading = false);
-          return;
-        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('كود الليدر غير صحيح')),
@@ -51,12 +41,12 @@ class _LoginSubLeaderScreenState extends State<LoginSubLeaderScreen> {
 
       try {
         final DocumentSnapshot snapshot = await FirebaseFirestore.instance
-            .collection("governorate")
-            .doc(governorate)
-            .collection('church')
-            .doc(churchCode)
-            .collection('sub_leaders_church')
-            .doc(code) // كل sub-leader كوثيقة مستقلة بدون مرحلة
+            .collection("center")
+            .doc(centerCode)
+            .collection('Mr')
+            .doc(_codeMrController.text)
+            .collection("assistant")
+            .doc(code)
             .get();
 
         if (snapshot.exists) {
@@ -172,6 +162,53 @@ class _LoginSubLeaderScreenState extends State<LoginSubLeaderScreen> {
                             color: Colors.blueGrey[700],
                           ),
                         ),
+                        TextFormField(
+                          controller: _codeMrController,
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.text,
+                          style: TextStyle(
+                            fontSize: 20,
+                            letterSpacing: 5,
+                            color: Colors.blue.shade900,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'L123456',
+                            hintStyle: TextStyle(
+                              fontSize: 18,
+                              color: Colors.blue[400],
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.blue.shade600,
+                                width: 2,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(
+                                color: Colors.blue.shade800,
+                                width: 2,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.qr_code,
+                              color: Colors.blue.shade700,
+                            ),
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.8),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'من فضلك أدخل الكود';
+                            }
+                            return null;
+                          },
+                        ),
+
                         const SizedBox(height: 40),
                         TextFormField(
                           controller: _codeController,

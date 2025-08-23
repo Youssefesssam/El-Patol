@@ -57,7 +57,12 @@ abstract class AppAssets{
   static const String l           = 'assets/lottie/l.json';
   static const String Lab_download         = 'assets/lottie/Lab_download.json';
   static const String HandLoding          = 'assets/lottie/HandLoding.json';
+  static const String StudyAbroad          = 'assets/lottie/Study Abroad.json';
+  static const String BackgroundAlemar          = 'assets/lottie/Background alemar.json';
   static const String fire          = 'assets/lottie/fire.json';
+  static const String animation          = 'assets/lottie/Animation.json';
+  static const String back_to_schooll          = 'assets/lottie/back_to_schooll.json';
+  static const String girl_with_books          = 'assets/lottie/girl_with_books.json';
   static const String mainPhoto         = 'assets/newPhoto/mainPhoto.png';
   static const String logoPatol         = 'assets/newPhoto/logoPatol.png';
   static const String smallAlbert         = 'assets/newPhoto/smallAlbert.png';
@@ -66,6 +71,12 @@ abstract class AppAssets{
   static const String crazy         = 'assets/newPhoto/crazy.png';
   static const String boy         = 'assets/newPhoto/boy.png';
   static const String albert         = 'assets/newPhoto/albert.png';
+  static const String logo         = 'assets/newPhoto/Logo.png';
+  static const String logo2         = 'assets/newPhoto/Logo2.png';
+  static const String main         = 'assets/newPhoto/Main.png';
+  static const String main1         = 'assets/newPhoto/Main1.png';
+  static const String teachers         = 'assets/newPhoto/teachers.png';
+  static const String backgroundNuion         = 'assets/newPhoto/backgroundNuion.png';
   static const String officerWomen =  'assets/characters/officerWomen.png';
   static const String officer =  'assets/characters/officer.png';
   static const String man =  'assets/characters/man.png';

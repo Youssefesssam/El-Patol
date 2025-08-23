@@ -9,10 +9,11 @@ import 'package:el_patol/screens/master_leader_screen.dart';
 import 'package:el_patol/screens/myInfo.dart';
 import 'package:el_patol/screens/screen_profile_leader.dart';
 import 'package:el_patol/screens/users_codes.dart';
+import 'package:el_patol/ui/screens/auth/loginScreen/LoginPage.dart';
 import 'package:el_patol/ui/screens/auth/loginScreen/loginScreen.dart';
-import 'package:el_patol/ui/screens/auth/registerScreen/registerProvider.dart';
+import 'package:el_patol/ui/screens/auth/registerScreen/RegisterPage.dart';
 import 'package:el_patol/ui/screens/auth/registerScreen/regsterScreen.dart';
-import 'package:el_patol/ui/screens/developerScreens/add_church.dart';
+import 'package:el_patol/ui/screens/developerScreens/add_center.dart';
 import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/bodyScreenLaders/attend/attend.dart';
 import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/absent/absentData.dart';
 import 'package:el_patol/ui/screens/features/featuresHomeScreenLeaders/home/answers.dart';
@@ -39,11 +40,17 @@ import 'package:el_patol/ui/screens/homeScreen/screenUser/mainComponent/generalW
 import 'package:el_patol/ui/screens/homeScreen/setttingUser.dart';
 import 'package:el_patol/ui/screens/splashScreen/splashScreen.dart';
 import 'package:el_patol/ui/screens/splashScreen/welcomeScreen.dart';
+import 'package:el_patol/ui_web/add_video/chooseStage.dart';
+import 'package:el_patol/ui_web/add_video/createModuleScreen.dart';
+import 'package:el_patol/ui_web/add_video/modulesListScreen.dart';
+import 'package:el_patol/ui_web/homeWeb/homeWeb.dart';
+import 'package:el_patol/ui_web/screenMr/screenMr.dart';
+import 'package:el_patol/ui_web/seenVideoUser/seenvideo.dart';
 import 'package:el_patol/ui_web/studend_ui/TeachersPage.dart';
 import 'package:el_patol/ui_web/studend_ui/studentProfilePage.dart';
+import 'package:el_patol/ui_web/subscriptionRequestsScreen/subscriptionRequestsScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
-
 import 'firebase/authProvider.dart';
 import 'firebase/dataProvider.dart';
 import 'firebase/fireBase/fireBaseForLeader/secend firebase.dart';
@@ -82,7 +89,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProviderTotalScore()),
         ChangeNotifierProvider(create: (_) => LeaderProvider()),
         ChangeNotifierProvider(create: (_) => MonthProvider()),
-        ChangeNotifierProvider(create: (_) => RegisterProvider()),
 
         ChangeNotifierProvider(create: (_) => langProvider),
       ],
@@ -109,7 +115,7 @@ class MyApp extends StatelessWidget {
       ],
 
 
-      initialRoute:StudentProfilePage.routeName,
+      initialRoute:HomeWeb.routeName,
       // This trailing comma makes auto-formatting nicer for build methods.
       debugShowCheckedModeBanner: false,
       routes: {
@@ -117,8 +123,6 @@ class MyApp extends StatelessWidget {
         HomeScreenUsers.routeName: (_) => HomeScreenUsers(),
         HomeScreenShimmer.routeName: (_) => HomeScreenShimmer(),
         SplashScreen.routeName: (_) => const SplashScreen(),
-        LoginScreen.routeName: (_) => const LoginScreen(),
-        RegisterScreen.routeName: (_) =>  RegisterScreen(),
         Charts.routeName: (_) => Charts(),
         Setting.routeName: (_) =>  Setting(),
         SettingUser.routeName: (_) => const SettingUser(),
@@ -135,23 +139,33 @@ class MyApp extends StatelessWidget {
         AbsentData.routeName: (_) => const AbsentData(),
         Team.routeName: (_) => const Team(),
         AnimatedProfile.routeName: (_) => AnimatedProfile(),
-        LoginScreenMasterLeader.routeName: (_) => LoginScreenMasterLeader(),
         ProfileScreen.routeName: (_) => ProfileScreen(),
-        AddSubLeaderScreen.routeName: (_) => AddSubLeaderScreen(),
-        AddUserScreen.routeName: (_) => AddUserScreen( ),
-        LoginSubLeaderScreen.routeName: (_) => LoginSubLeaderScreen( ),
         MyInfo.routeName: (_) => MyInfo( ),
-        AddChurch.routeName: (_) => AddChurch( ),
-        MasterLeaderScreen.routeName: (_) => MasterLeaderScreen( ),
         AdInterFace.routeName: (_) => AdInterFace( ),
-        RagsterDataForLeader.routeName: (_) => RagsterDataForLeader( ),
         PrizeScreen.routeName: (_) => PrizeScreen( ),
         DailyCheckInDialog.routeName: (_) => DailyCheckInDialog( ),
         ChangePasswordPage.routeName: (_) => ChangePasswordPage( ),
         AllUsersCodesScreen.routeName: (_) => AllUsersCodesScreen( ),
         WelcomeScreen.routeName: (_) => WelcomeScreen( ),
+        ///////////////////////////////////////////////////////////////////////////////////////////
+        MasterLeaderScreen.routeName: (_) => MasterLeaderScreen( ),
+        RagsterDataForLeader.routeName: (_) => RagsterDataForLeader( ),
+        LoginSubLeaderScreen.routeName: (_) => LoginSubLeaderScreen( ),
+        AddSubLeaderScreen.routeName: (_) => AddSubLeaderScreen(),
+        LoginScreenMasterLeader.routeName: (_) => LoginScreenMasterLeader(),
+        LoginScreen.routeName: (_) => const LoginScreen(),
+        RegisterScreen.routeName: (_) =>  RegisterScreen(),
         StudentProfilePage.routeName: (_) => StudentProfilePage( ),
-        TeachersPage.routeName: (_) => TeachersPage( ),
+        TeachersPage.routeName: (_) => TeachersPage(centerCode: '101', studentCode: 'SP11011960', stageCode: 'P_1', ),
+        HomeWeb.routeName: (_) => HomeWeb( ),
+        LoginPage.routeName: (_) =>  LoginPage(),
+        RegisterPage.routeName: (_) =>  RegisterPage(),
+        SeenVideoUser.routeName: (_) =>  SeenVideoUser(),
+        AddCenter.routeName: (_) => AddCenter( ),
+        ChooseStageScreen.routeName: (_) => ChooseStageScreen( ),
+        ScreenMr.routeName: (_) => ScreenMr( ),
+        SubscriptionRequestsScreen.routeName: (_) => SubscriptionRequestsScreen(teacherId: 'Mr1017595', centerId: '101', ),
+
       },
     );
   }

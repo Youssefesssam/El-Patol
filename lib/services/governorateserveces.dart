@@ -1,33 +1,10 @@
 class GovernorateService {
   // قائمة المحافظات الرسمية في مصر (27 محافظة)
   static final Map<String, Map<String, String>> governorates = {
-    '01': {'ar': 'القاهرة', 'en': 'Cairo'},
-    '02': {'ar': 'الجيزة', 'en': 'Giza'},
-    '03': {'ar': 'الإسكندرية', 'en': 'Alexandria'},
-    '04': {'ar': 'القليوبية', 'en': 'Qalyubia'},
-    '05': {'ar': 'البحيرة', 'en': 'Beheira'},
-    '06': {'ar': 'كفر الشيخ', 'en': 'Kafr El Sheikh'},
-    '07': {'ar': 'الغربية', 'en': 'Gharbia'},
-    '08': {'ar': 'المنوفية', 'en': 'Menoufia'},
-    '09': {'ar': 'الدقهلية', 'en': 'Dakahlia'},
-    '10': {'ar': 'دمياط', 'en': 'Damietta'},
-    '11': {'ar': 'الشرقية', 'en': 'Sharqia'},
-    '12': {'ar': 'الإسماعيلية', 'en': 'Ismailia'},
-    '13': {'ar': 'بورسعيد', 'en': 'Port Said'},
-    '14': {'ar': 'السويس', 'en': 'Suez'},
-    '15': {'ar': 'شمال سيناء', 'en': 'North Sinai'},
-    '16': {'ar': 'جنوب سيناء', 'en': 'South Sinai'},
-    '17': {'ar': 'بني سويف', 'en': 'Beni Suef'},
-    '18': {'ar': 'الفيوم', 'en': 'Fayoum'},
-    '19': {'ar': 'المنيا', 'en': 'Minya'},
-    '20': {'ar': 'أسيوط', 'en': 'Assiut'},
-    '21': {'ar': 'الوادي الجديد', 'en': 'New Valley'},
-    '22': {'ar': 'سوهاج', 'en': 'Sohag'},
-    '23': {'ar': 'قنا', 'en': 'Qena'},
-    '24': {'ar': 'الأقصر', 'en': 'Luxor'},
-    '25': {'ar': 'أسوان', 'en': 'Aswan'},
-    '26': {'ar': 'مطروح', 'en': 'Matrouh'},
-    '27': {'ar': 'البحر الأحمر', 'en': 'Red Sea'},
+    '01': {'ar': ' السويس باتول', 'en': 'suez patol'},
+    '02': {'ar': 'الاربعين باتول', 'en': 'al arbaan patol'},
+    '03': {'ar': 'الفرنسسكان باتول', 'en': 'al frencecan batol'},
+
   };
 
   static String getArabicName(String code) {

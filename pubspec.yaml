@@ -46,6 +46,8 @@ dependencies:
   confetti: ^0.8.0
   animate_do: ^4.2.0
   visibility_detector: ^0.4.0+2
+  flutter_animate: ^4.5.0
+  chewie: ^1.7.1
 
 dev_dependencies:
   flutter_test:
@@ -80,6 +82,13 @@ flutter:
     - assets/newPhoto/crazy.png
     - assets/newPhoto/boy.png
     - assets/newPhoto/albert.png
+    - assets/newPhoto/Logo.png
+    - assets/newPhoto/Logo2.png
+    - assets/newPhoto/Main.png
+    - assets/newPhoto/Main1.png
+    - assets/newPhoto/albert.png
+    - assets/newPhoto/teachers.png
+    - assets/newPhoto/backgroundNuion.png
     - assets/models/loder.glb
     - assets/lottie/background.json
     - assets/lottie/a.json
@@ -97,7 +106,12 @@ flutter:
     - assets/lottie/l.json
     - assets/lottie/HandLoding.json
     - assets/lottie/Lab_download.json
+    - assets/lottie/Study Abroad.json
+    - assets/lottie/Background alemar.json
     - assets/lottie/fire.json
+    - assets/lottie/Animation.json
+    - assets/lottie/back_to_schooll.json
+    - assets/lottie/girl_with_books.json
 
 
 
